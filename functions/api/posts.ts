@@ -3,16 +3,43 @@ import { Env, getDatabase } from '../notion'
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, waitUntil, env }) => {
   let cache = await caches.open("custom:cache")
-  let cacheKey = new Request(request.url, request)
+  let cacheKey = request.url
   let response = await cache.match(cacheKey)
   if (!response) {
-    const notion = new Client({ auth: env.NOTION_KEY })
-    const posts = await getDatabase(env.NOTION_DATABASE_ID, notion)
-
-    response = new Response(JSON.stringify(posts), {
-      headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
-    })
-    waitUntil(cache.put(cacheKey, response.clone()))
+    let { value, metadata } = await env.KV_STORE.getWithMetadata<{ cacheDate: string }>(cacheKey)
+    if (!value || !metadata) {
+      response = await fetchAndCache(env, cache, cacheKey)
+    } else {
+      const cacheDate = new Date(metadata.cacheDate)
+      const cacheAge = (Date.now() - cacheDate.getTime()) / 1000
+      if (cacheAge > 300) {
+        waitUntil(fetchAndCache(env, cache, cacheKey))
+      }
+      response = new Response(value, {
+        headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
+      })
+    }
   }
   return response
 };
+
+async function fetchAndCache(env: Env, cache: Cache, cacheKey: string) {
+  const posts = await fetchPages(env)
+  const responseBody = JSON.stringify(posts)
+  const response = new Response(responseBody, {
+    headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
+  })
+  await cache.put(cacheKey, response)
+  await env.KV_STORE.put(cacheKey, responseBody, {
+    metadata: {
+      cacheDate: new Date().toISOString(),
+    }
+  })
+  return response
+}
+
+async function fetchPages(env: Env) {
+  const notion = new Client({ auth: env.NOTION_KEY })
+  const posts = await getDatabase(env.NOTION_DATABASE_ID, notion)
+  return posts
+}

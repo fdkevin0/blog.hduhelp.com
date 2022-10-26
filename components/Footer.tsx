@@ -1,4 +1,4 @@
-import { Googleanalytics, Nextdotjs, Notion, Tailwindcss, Vercel, Githubactions } from '@icons-pack/react-simple-icons'
+import { Googleanalytics, Nextdotjs, Notion, Tailwindcss, Vercel, Githubactions, Cloudflare } from '@icons-pack/react-simple-icons'
 
 const Footer = () => {
   return (
@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="space-x-2 inline-flex items-center my-2">
         <Notion size={16} />
         <Nextdotjs size={16} />
-        <Vercel size={16} />
+        <Cloudflare size={16} />
       </div>
       <div>Built with love by HDUHELP</div>
       <div>

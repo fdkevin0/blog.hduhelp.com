@@ -35,8 +35,8 @@ async function fetchAndCache(env: Env, cache: Cache, cacheKey: string, slug: str
   const response = new Response(responseBody, {
     headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
   })
-  cache.put(cacheKey, response)
-  env.KV_STORE.put(cacheKey, responseBody, {
+  await cache.put(cacheKey, response)
+  await env.KV_STORE.put(cacheKey, responseBody, {
     metadata: {
       cacheDate: new Date().toISOString(),
     }
