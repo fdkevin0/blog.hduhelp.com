@@ -6,29 +6,12 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, waitUntil, env
   let cacheKey = request.url
   let response = await cache.match(cacheKey)
   if (!response) {
-    let { value, metadata } = await env.KV_STORE.getWithMetadata<{ cacheDate: string }>(cacheKey)
-    if (!value || !metadata) {
-      const posts = await fetchPages(env)
-      const responseBody = JSON.stringify(posts)
-      response = new Response(responseBody, {
-        headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
-      })
-      waitUntil(cache.put(cacheKey, response))
-      await env.KV_STORE.put(cacheKey, responseBody, {
-        metadata: {
-          cacheDate: new Date().toISOString(),
-        }
-      })
-    } else {
-      const cacheDate = new Date(metadata.cacheDate)
-      const cacheAge = (Date.now() - cacheDate.getTime()) / 1000
-      if (cacheAge > 300) {
-        waitUntil(fetchAndCache(env, cache, cacheKey))
-      }
-      response = new Response(value, {
-        headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
-      })
-    }
+    const posts = await fetchPages(env)
+    const responseBody = JSON.stringify(posts)
+    response = new Response(responseBody, {
+      headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
+    })
+    waitUntil(cache.put(cacheKey, response))
   }
   return response
 };
