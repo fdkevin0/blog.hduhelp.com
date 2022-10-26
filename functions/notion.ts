@@ -3,6 +3,7 @@ import { Client } from "@notionhq/client";
 export interface Env {
   NOTION_KEY: string;
   NOTION_DATABASE_ID: string;
+  KV_STORE: KVNamespace;
 }
 
 export const getDatabase = async (databaseId: string ,notion: Client, slug?: string) => {
