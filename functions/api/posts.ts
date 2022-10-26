@@ -8,7 +8,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, waitUntil, env
   if (!response) {
     let { value, metadata } = await env.KV_STORE.getWithMetadata<{ cacheDate: string }>(cacheKey)
     if (!value || !metadata) {
-      response = await fetchAndCache(env, cache, cacheKey)
+      response = await fetchAndCache(env, cache, cacheKey, waitUntil)
     } else {
       const cacheDate = new Date(metadata.cacheDate)
       const cacheAge = (Date.now() - cacheDate.getTime()) / 1000
@@ -23,18 +23,27 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, waitUntil, env
   return response
 };
 
-async function fetchAndCache(env: Env, cache: Cache, cacheKey: string) {
+async function fetchAndCache(env: Env, cache: Cache, cacheKey: string, waitUntil?: (promise: Promise<any>) => void) {
   const posts = await fetchPages(env)
   const responseBody = JSON.stringify(posts)
   const response = new Response(responseBody, {
     headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
   })
-  await cache.put(cacheKey, response)
-  await env.KV_STORE.put(cacheKey, responseBody, {
-    metadata: {
-      cacheDate: new Date().toISOString(),
-    }
-  })
+  if (waitUntil) {
+    waitUntil(cache.put(cacheKey, response))
+    waitUntil(env.KV_STORE.put(cacheKey, responseBody, {
+      metadata: {
+        cacheDate: new Date().toISOString(),
+      }
+    }))
+  } else {
+    await cache.put(cacheKey, response)
+    await env.KV_STORE.put(cacheKey, responseBody, {
+      metadata: {
+        cacheDate: new Date().toISOString(),
+      }
+    })
+  }
   return response
 }
 
