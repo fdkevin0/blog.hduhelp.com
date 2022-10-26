@@ -23,7 +23,6 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
         })
       }
     }
-    await env.KV_STORE.put(cacheKey, await response.text())
     return response
   } catch (error: any) {
     return new Response(error.toString(), { status: 500 })
