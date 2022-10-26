@@ -9,9 +9,19 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
 
     if (!response) {
       const slug: string = params.slug as string
-      const { value, metadata } = await env.KV_STORE.getWithMetadata<{cacheDate: string}>(cacheKey)
+      const { value, metadata } = await env.KV_STORE.getWithMetadata<{ cacheDate: string }>(cacheKey)
       if (!value || !metadata) {
-        response = await fetchAndCache(env, cache, cacheKey, slug, waitUntil)
+        const { page, blocks } = await fetchPage(env, slug)
+        const responseBody = JSON.stringify({ page, blocks })
+        response = new Response(responseBody, {
+          headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
+        })
+        waitUntil(cache.put(cacheKey, response))
+        await env.KV_STORE.put(cacheKey, responseBody, {
+          metadata: {
+            cacheDate: new Date().toISOString(),
+          }
+        })
       } else {
         const cacheDate = new Date(metadata.cacheDate)
         const cacheAge = (Date.now() - cacheDate.getTime()) / 1000
@@ -29,27 +39,18 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
   }
 };
 
-async function fetchAndCache(env: Env, cache: Cache, cacheKey: string, slug: string, waitUntil?: (promise: Promise<any>) => void) {
+async function fetchAndCache(env: Env, cache: Cache, cacheKey: string, slug: string) {
   const { page, blocks } = await fetchPage(env, slug)
   const responseBody = JSON.stringify({ page, blocks })
   const response = new Response(responseBody, {
     headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
   })
-  if (waitUntil) {
-    waitUntil(cache.put(cacheKey, response))
-    waitUntil(env.KV_STORE.put(cacheKey, responseBody, {
-      metadata: {
-        cacheDate: new Date().toISOString(),
-      }
-    }))
-  } else {
-    await cache.put(cacheKey, response)
-    await env.KV_STORE.put(cacheKey, responseBody, {
-      metadata: {
-        cacheDate: new Date().toISOString(),
-      }
-    })
-  }
+  await cache.put(cacheKey, response)
+  await env.KV_STORE.put(cacheKey, responseBody, {
+    metadata: {
+      cacheDate: new Date().toISOString(),
+    }
+  })
   return response
 }
 

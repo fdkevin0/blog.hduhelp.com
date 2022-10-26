@@ -10,7 +10,7 @@ const generateRSS = (posts: any) => {
   const feed = new Feed({
     id: domain,
     link: domain,
-    title: "HDUHELP - HDUHELP's Blog (@_@;)",
+    title: "HDUHELP's Blog :)",
     description: 'Thoughts, ideas, and more.',
     copyright: `All rights reserved ${year}, HDUHELP`,
     image: `${domain}/favicon.png`,
