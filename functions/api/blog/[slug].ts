@@ -15,6 +15,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
         headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
       })
       waitUntil(cache.put(cacheKey, response))
+      return response
     }
     return response
   } catch (error: any) {
