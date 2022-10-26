@@ -6,9 +6,9 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, waitUntil, env
   let cacheKey = request.url
   let response = await cache.match(cacheKey)
   if (!response) {
-    const posts = await fetchPages(env)
-    const responseBody = JSON.stringify(posts)
-    response = new Response(responseBody, {
+    const notion = new Client({ auth: env.NOTION_KEY })
+    const posts = await getDatabase(env.NOTION_DATABASE_ID, notion)
+    response = new Response(JSON.stringify(posts), {
       headers: { "Content-Type": "application/json", 'Cache-Control': 's-maxage=300' }
     })
     waitUntil(cache.put(cacheKey, response))
