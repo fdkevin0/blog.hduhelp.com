@@ -21,21 +21,21 @@ export function renderNotionBlock(block: any) {
 
     case 'heading_1':
       return (
-        <h1 id={slugify(value.text[0].plain_text)} className="font-bold mt-4 mb-2 text-2xl leading-7 dark:text-white">
+        <h1 id={slugify(value.rich_text[0].plain_text)} className="font-bold mt-4 mb-2 text-2xl leading-7 dark:text-white">
           <Text text={value.text} />
         </h1>
       )
 
     case 'heading_2':
       return (
-        <h2 id={slugify(value.text[0].plain_text)} className="font-bold mt-4 text-xl mb-2 leading-7 dark:text-white">
+        <h2 id={slugify(value.rich_text[0].plain_text)} className="font-bold mt-4 text-xl mb-2 leading-7 dark:text-white">
           <Text text={value.text} />
         </h2>
       )
 
     case 'heading_3':
       return (
-        <h3 id={slugify(value.text[0].plain_text)} className="font-bold mt-4 text-lg mb-2 leading-7 dark:text-white">
+        <h3 id={slugify(value.rich_text[0].plain_text)} className="font-bold mt-4 text-lg mb-2 leading-7 dark:text-white">
           <Text text={value.text} />
         </h3>
       )
@@ -121,7 +121,7 @@ export function renderNotionBlock(block: any) {
           </div>
           <pre className="font-mono text-sm overflow-hidden">
             <SyntaxHighlighter language={value.language} style={nord}>
-              {value.text[0].plain_text}
+              {value.rich_text[0].plain_text}
             </SyntaxHighlighter>
           </pre>
         </div>

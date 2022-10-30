@@ -1,8 +1,8 @@
-import Link from 'next/link'
-import { Menu, Transition } from '@headlessui/react'
-import { Menu as MenuIcon, Rss } from 'react-feather'
-import { Fragment } from 'react'
-import Toggle from './DarkToggle'
+import Link from "next/link";
+import { Menu, Transition } from "@headlessui/react";
+import { Menu as MenuIcon, Rss } from "react-feather";
+import { Fragment } from "react";
+import Toggle from "./DarkToggle";
 
 const navigations: {
   name: string;
@@ -21,31 +21,35 @@ const navigations: {
   //   link: '/links',
   // },
   {
-    name: 'Friends',
-    link: '/friends',
+    name: "Friends",
+    link: "/friends",
   },
-]
+];
 
-const MenuItemLink = (props: { [x: string]: any; href: any; children: any }) => {
-  const { href, children, ...rest } = props
+const MenuItemLink = (props: {
+  [x: string]: any;
+  href: any;
+  children: any;
+}) => {
+  const { href, children, ...rest } = props;
   return (
     <Link href={href}>
-      <a {...rest}>{children}</a>
+      {/* <a {...rest}>{children}</a> */}
     </Link>
-  )
-}
+  );
+};
 
 const Navbar = () => {
   return (
     <header className="flex p-6 z-10 items-center justify-between primary-text">
       <Link href="/" passHref>
-        <a>HDUHELP</a>
+        HDUHELP
       </Link>
       <div className="flex space-x-4 items-center">
         <nav className="flex space-x-4 items-center hidden sm:block">
           {navigations.map((n, i) => (
             <Link href={n.link} key={i} passHref>
-              <a>{n.name}</a>
+              {n.name}
             </Link>
           ))}
         </nav>
@@ -79,7 +83,7 @@ const Navbar = () => {
 
         <div
           onClick={() => {
-            window.open('/feed')
+            window.open("/feed");
           }}
           className="cursor-pointer hover:text-gray-500"
         >
@@ -88,7 +92,7 @@ const Navbar = () => {
         <Toggle />
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

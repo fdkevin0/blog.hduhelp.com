@@ -7,8 +7,6 @@ const Toggle = () => {
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
 
-  const { asPath } = useRouter()
-
   useEffect(() => {
     setMounted(true)
   }, [])

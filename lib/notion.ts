@@ -1,12 +1,9 @@
-import { Client } from "@notionhq/client";
+import { Client } from '@notionhq/client'
 
-export interface Env {
-  NOTION_KEY: string;
-  NOTION_DATABASE_ID: string;
-  KV_STORE: KVNamespace;
-}
+const notion = new Client({ auth: process.env.NOTION_KEY })
+const databaseId = process.env.NOTION_DATABASE_ID || 'cd2de0ed982a4036a7bab68b3e76b69b'
 
-export const getDatabase = async (databaseId: string ,notion: Client, slug?: string) => {
+export const getDatabase = async (slug?: string) => {
   let dbQuery: any = {
     database_id: databaseId,
     filter: { and: [{ property: 'published', checkbox: { equals: true } }] },
@@ -16,17 +13,17 @@ export const getDatabase = async (databaseId: string ,notion: Client, slug?: str
   if (slug) {
     dbQuery.filter.and.push({ property: 'slug', rich_text: { equals: slug } })
   }
-
+  console.log(process.env.NOTION_KEY)
   const response = await notion.databases.query(dbQuery)
   return response.results
 }
 
-export const getPage = async (notion: Client, pageId: string) => {
+export const getPage = async (pageId: string) => {
   const response = await notion.pages.retrieve({ page_id: pageId })
   return response
 }
 
-export const getBlocks = async (notion: Client, blockId: string) => {
+export const getBlocks = async (blockId: string) => {
   const response = await notion.blocks.children.list({
     block_id: blockId,
     page_size: 100,
@@ -34,7 +31,7 @@ export const getBlocks = async (notion: Client, blockId: string) => {
   return response.results
 }
 
-export const searchDatabase = async (notion: Client, query: string) => {
+export const searchDatabase = async (query: string) => {
   const response = await notion.search({
     query: query,
     filter: { value: 'page', property: 'object' },

@@ -1,27 +1,16 @@
 import type { QueryDatabaseResponse } from "@notionhq/client/build/src/api-endpoints";
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import Head from "next/head";
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { useEffect, useState } from "react";
+import { getDatabase } from "../lib/notion";
 
 type BlogPosts = QueryDatabaseResponse["results"];
 
-const Blog: NextPage = () => {
-  const [posts, setPosts] = useState<BlogPosts>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      const response = await fetch("/api/posts");
-      const posts: BlogPosts = await response.json<BlogPosts>();
-      setPosts(posts);
-      setLoading(false);
-    })();
-  }, []);
-
+const Blog: NextPage<{ posts: BlogPosts }> = ({ posts }) => {
+  if (!posts) return <div></div>
   return (
     <div>
       <Head>
@@ -54,7 +43,6 @@ const Blog: NextPage = () => {
           <h1 className="font-bold text-xl mb-8 heading-text flex items-center justify-between">
             <span>Blog</span>
           </h1>
-          {loading && <div>Loading...</div>}
           {posts.map((post: any) => (
             <Link
               key={post.id}
@@ -97,5 +85,14 @@ const Blog: NextPage = () => {
     </div>
   );
 };
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const db = await getDatabase()
+  return {
+    props: {
+      posts: db,
+    }
+  }
+}
 
 export default Blog;
